@@ -48,7 +48,7 @@ const App: React.FC = () => {
   const [idea, setIdea] = useState<Idea>({
     title: '',
     description: '',
-    category: IdeaCategory.AI_NATIVE,
+    category: IdeaCategory.PHARMA_INNOVATION,
     track: '高教主赛道'
   });
   const [result, setResult] = useState<EvaluationResult | null>(null);
@@ -64,7 +64,7 @@ const App: React.FC = () => {
       setResult(evaluation);
     } catch (error) {
       console.error(error);
-      alert("专家系统会商异常，请重试");
+      alert("专家系统会商异常，请检查网络或思路描述是否过于简略");
     } finally {
       setLoading(false);
     }
@@ -96,8 +96,8 @@ const App: React.FC = () => {
             </div>
           </div>
           <div className="hidden lg:block text-right">
-            <p className="text-[10px] text-gray-500 font-black uppercase">Session Active</p>
-            <p className="text-xs font-bold text-gray-400">2026 评审逻辑已加载</p>
+            <p className="text-[10px] text-gray-500 font-black uppercase">Core Knowledge: 2025 Medical Gold Winners</p>
+            <p className="text-xs font-bold text-gray-400">2026 医药/生物评审逻辑已更新</p>
           </div>
         </div>
       </header>
@@ -138,7 +138,7 @@ const App: React.FC = () => {
                 <input 
                   type="text" 
                   className="w-full bg-slate-800 border-none p-4 rounded-2xl mt-1 focus:ring-2 focus:ring-cyan-500 outline-none font-bold"
-                  placeholder="请输入当前项目名..."
+                  placeholder="如：基于超分子技术的抗癌药..."
                   value={idea.title}
                   onChange={(e) => setIdea({...idea, title: e.target.value})}
                 />
@@ -148,7 +148,7 @@ const App: React.FC = () => {
                 <textarea 
                   rows={8}
                   className="w-full bg-slate-800 border-none p-4 rounded-2xl mt-1 focus:ring-2 focus:ring-cyan-500 outline-none text-sm leading-relaxed"
-                  placeholder="详细描述您的技术路线或服务模式..."
+                  placeholder="详细描述您的技术路线，医药类项目请务必描述清楚【临床痛点】与【核心分子/结构设计】..."
                   value={idea.description}
                   onChange={(e) => setIdea({...idea, description: e.target.value})}
                 />
@@ -173,7 +173,7 @@ const App: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="md:col-span-2 bg-slate-900/50 rounded-[2.5rem] p-8 border border-white/5 relative overflow-hidden">
                    <div className="absolute top-0 right-0 p-8">
-                      <div className="text-[10px] text-gray-500 font-black uppercase text-right">综合推荐得分</div>
+                      <div className="text-[10px] text-gray-500 font-black uppercase text-right">综合金奖潜力</div>
                       <div className="text-4xl font-black text-cyan-500">{result.overallScore}</div>
                    </div>
                    <h3 className="text-sm font-black mb-6 uppercase">五维战力诊断</h3>
@@ -206,7 +206,7 @@ const App: React.FC = () => {
               {/* Topic Evolutions */}
               <div className="bg-white/5 border border-cyan-500/30 rounded-[3rem] p-10 space-y-8">
                  <h3 className="text-2xl font-black flex items-center gap-3">
-                    <span className="text-cyan-500">◈</span> 选题进化论：建议升级方向
+                    <span className="text-cyan-500">◈</span> 选题进化论：对标 2025 金奖趋势
                  </h3>
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {result.topicPivots.map((pivot, i) => (
@@ -224,7 +224,7 @@ const App: React.FC = () => {
                  <div className="space-y-6">
                     <div>
                       <h4 className="text-sm font-black text-gray-500 uppercase mb-4 tracking-widest flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 bg-cyan-500 rounded-full"></span> 落地场景与痛点解决
+                        <span className="w-1.5 h-1.5 bg-cyan-500 rounded-full"></span> 落地场景与痛点穿透
                       </h4>
                       <p className="text-sm text-gray-200 leading-loose mb-4">{result.implementation.painPointSolving}</p>
                       <div className="flex flex-wrap gap-2">
@@ -235,7 +235,7 @@ const App: React.FC = () => {
                     </div>
                     <div>
                       <h4 className="text-sm font-black text-gray-500 uppercase mb-4 tracking-widest flex items-center gap-2">
-                        <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span> 技术预警与改进路径
+                        <span className="w-1.5 h-1.5 bg-red-500 rounded-full"></span> 技术负面清单与改进路径
                       </h4>
                       <ul className="space-y-2 mb-4">
                         {result.implementation.technicalShortcomings.map((ts, i) => (
@@ -243,7 +243,7 @@ const App: React.FC = () => {
                         ))}
                       </ul>
                       <div className="p-4 bg-red-500/5 rounded-2xl border border-red-500/10 text-xs text-gray-400 italic">
-                        改进方向：{result.implementation.researchRoadmap}
+                        研发路径：{result.implementation.researchRoadmap}
                       </div>
                     </div>
                  </div>
@@ -270,7 +270,7 @@ const App: React.FC = () => {
                             <span key={i} className="text-[10px] font-bold text-blue-300 border border-blue-500/20 px-2 py-0.5 rounded-md italic">Benchmarking: {b}</span>
                           ))}
                         </div>
-                        <p className="text-xs text-gray-200 font-medium">核心优势：{result.businessFramework.competitiveAdvantages}</p>
+                        <p className="text-xs text-gray-200 font-medium">核心竞争优势：{result.businessFramework.competitiveAdvantages}</p>
                       </div>
                     </div>
                  </div>
@@ -284,7 +284,7 @@ const App: React.FC = () => {
               </div>
               <h2 className="text-2xl font-black mb-4">专家研判席等待接入</h2>
               <p className="text-gray-500 max-w-sm font-bold text-sm leading-relaxed">
-                输入您的初期选题思路，我们将基于近三年大赛规则和 2026 预测趋势，为您生成全维度的深度诊断报告。
+                输入您的医药、生物或跨学科选题思路。我们将基于 2025 金奖大数据，为您生成 2026 维度的深度诊断报告。
               </p>
             </div>
           )}
