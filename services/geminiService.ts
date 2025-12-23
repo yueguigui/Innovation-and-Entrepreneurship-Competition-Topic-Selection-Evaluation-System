@@ -8,40 +8,38 @@ export async function evaluateIdea(idea: Idea): Promise<EvaluationResult> {
   const dimensionSchema = {
     type: Type.OBJECT,
     properties: {
-      score: { type: Type.NUMBER, description: "维度得分" },
-      maxScore: { type: Type.NUMBER, description: "该维度满分" },
-      scoringPoints: { type: Type.ARRAY, items: { type: Type.STRING }, description: "命中的具体得分点" },
-      weakness: { type: Type.STRING, description: "该维度存在的问题" },
-      improvement: { type: Type.STRING, description: "改进方向" },
-      bridgeStrategy: { type: Type.STRING, description: "维度关联建议" }
+      score: { type: Type.NUMBER },
+      maxScore: { type: Type.NUMBER },
+      scoringPoints: { type: Type.ARRAY, items: { type: Type.STRING } },
+      weakness: { type: Type.STRING },
+      improvement: { type: Type.STRING },
+      bridgeStrategy: { type: Type.STRING }
     },
     required: ["score", "maxScore", "scoringPoints", "weakness", "improvement", "bridgeStrategy"]
   };
 
   const prompt = `
-    你现在是中国国际大学生创新大赛（2026）的国家级评审专家组组长。
-    我已经通过 2025 年金奖获奖名单（如：血管化心脏类器官、SpermSeek AI、LipiRelief 靶向药等）深度掌握了医药赛道的评审逻辑。
+    你现在是中国国际大学生创新大赛（2026）国家级评审专家组组长。
+    请针对以下项目信息提供深度、详尽、极具专业洞察力的中文评审报告。
 
-    ### 医药/生物类金奖评估准则：
-    1. **临床价值穿透**：必须点名解决了哪种“临床未被满足的需求”（Unmet Clinical Need）。
-    2. **技术护城河**：是否具备专利壁垒或复杂的生物工艺（如磁控溅射、微流控、蛋白质计算）。
-    3. **药政前瞻性**：如果是药/械，必须对“型检”、“临床申报”或“伦理”有明确的路径设想。
-    4. **国产替代/首创**：强调针对外资垄断（如高端医用缝合线、手术导航系统）的突破。
+    ### 评审逻辑指引：
+    1. **脱敏处理**：在生成“选题优化建议”时，请确保提供的新标题具有高度原创性，严禁直接套用历届国赛金奖项目的真实名称，应通过“核心技术词+场景动词+宏大愿景”进行重构。
+    2. **全维度专业性**：
+       - 对于“新医科”：重点关注临床评价路径、伦理风险、医疗器械注册证(NMPA)获取的可行性。
+       - 对于“新农科”：关注土地普惠性、粮食安全红线、乡村振兴的可持续经营能力。
+       - 对于“新文科”：避免纯文化展示，需强化“文化+科技”、“管理+数智”的落地闭环。
+    3. **专家研判深度指标**：
+       - **诊断总评**：不少于250字，需包含项目在当前“四新”背景下的战略卡位分析。
+       - **技术研判**：实施“细胞级”拆解，指出具体环节的物理/工程局限。
+       - **商业模式**：输出包含核心资源、关键业务、渠道通路、收入来源的完整逻辑。
 
-    ### 评审任务：
-    请对以下选题构思进行【深度诊断报告】。
-
+    ### 待评项目信息：
     - 赛道：${idea.track}
-    - 领域：${idea.category}
-    - 标题：${idea.title}
-    - 描述：${idea.description}
+    - 细分方向：${idea.category}
+    - 项目题名：${idea.title}
+    - 核心思路描述：${idea.description}
 
-    ### 输出要求：
-    - **选题进化 (Pivot)**：医药类题目必须更具科学性（例如：从“智能拐杖”魔改为“基于多模态传感的共融型下肢外骨骼机器人”）。
-    - **技术预警**：点名目前实验进度、一致性或安全性上的潜在缺陷。
-    - **商业闭环**：对标美敦力、强生、恒瑞、大疆医疗等头部。
-
-    请以 JSON 格式输出。
+    请严格按JSON输出，内容需详尽、全面、具有指导意义。
   `;
 
   const response = await ai.models.generateContent({
@@ -56,13 +54,13 @@ export async function evaluateIdea(idea: Idea): Promise<EvaluationResult> {
           dimensions: {
             type: Type.OBJECT,
             properties: {
-              education: dimensionSchema,
               innovation: dimensionSchema,
-              team: dimensionSchema,
+              education: dimensionSchema,
               business: dimensionSchema,
+              team: dimensionSchema,
               social: dimensionSchema
             },
-            required: ["education", "innovation", "team", "business", "social"]
+            required: ["innovation", "education", "business", "team", "social"]
           },
           topicPivots: {
             type: Type.ARRAY,
@@ -79,29 +77,58 @@ export async function evaluateIdea(idea: Idea): Promise<EvaluationResult> {
           implementation: {
             type: Type.OBJECT,
             properties: {
-              preciseScenarios: { type: Type.ARRAY, items: { type: Type.STRING } },
-              painPointSolving: { type: Type.STRING },
-              technicalShortcomings: { type: Type.ARRAY, items: { type: Type.STRING } },
-              researchRoadmap: { type: Type.STRING }
+              preciseScenarios: {
+                type: Type.ARRAY,
+                items: {
+                  type: Type.OBJECT,
+                  properties: {
+                    scenario: { type: Type.STRING },
+                    problemSolved: { type: Type.STRING }
+                  },
+                  required: ["scenario", "problemSolved"]
+                }
+              },
+              technicalBreakdown: {
+                type: Type.ARRAY,
+                items: {
+                  type: Type.OBJECT,
+                  properties: {
+                    component: { type: Type.STRING },
+                    issue: { type: Type.STRING },
+                    optimization: { type: Type.STRING }
+                  },
+                  required: ["component", "issue", "optimization"]
+                }
+              },
+              businessModel: {
+                type: Type.OBJECT,
+                properties: {
+                  framework: { type: Type.STRING },
+                  profitModels: { type: Type.ARRAY, items: { type: Type.STRING } },
+                  operationLogic: { type: Type.STRING }
+                },
+                required: ["framework", "profitModels", "operationLogic"]
+              },
+              marketBenchmarking: {
+                type: Type.OBJECT,
+                properties: {
+                  leaders: { type: Type.ARRAY, items: { type: Type.STRING } },
+                  ourAdvantages: { type: Type.ARRAY, items: { type: Type.STRING } },
+                  marketProspect: { type: Type.STRING },
+                  competitiveMoat: { type: Type.STRING }
+                },
+                required: ["leaders", "ourAdvantages", "marketProspect", "competitiveMoat"]
+              }
             },
-            required: ["preciseScenarios", "painPointSolving", "technicalShortcomings", "researchRoadmap"]
-          },
-          businessFramework: {
-            type: Type.OBJECT,
-            properties: {
-              revenueModel: { type: Type.STRING },
-              businessFramework: { type: Type.STRING },
-              benchmarks: { type: Type.ARRAY, items: { type: Type.STRING } },
-              competitiveAdvantages: { type: Type.STRING }
-            },
-            required: ["revenueModel", "businessFramework", "benchmarks", "competitiveAdvantages"]
+            required: ["preciseScenarios", "technicalBreakdown", "businessModel", "marketBenchmarking"]
           },
           expertComment: { type: Type.STRING }
         },
-        required: ["overallScore", "dimensions", "topicPivots", "implementation", "businessFramework", "expertComment"]
+        required: ["overallScore", "dimensions", "topicPivots", "implementation", "expertComment"]
       }
     }
   });
 
-  return JSON.parse(response.text.trim());
+  const text = response.text || "{}";
+  return JSON.parse(text.trim());
 }
