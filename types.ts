@@ -48,12 +48,17 @@ export interface EvaluationResult {
 }
 
 export enum IdeaCategory {
-  AI_NATIVE = 'AI Native 原生智能',
-  LOW_ALTITUDE = '低空经济/无人驾驶',
-  QUANTUM_TECH = '量子信息/未来计算',
-  BIO_MANUFACTURING = '合成生物/生命科学',
-  NEW_ENERGY = '氢能/核能/新型储能',
-  DEEP_SEA_SPACE = '空天海地探测装置',
-  DATA_ELEMENTS = '数据要素/数字资产',
-  RURAL_DIGITIZATION = '乡村振兴/数字治理'
+  // 医药类专项
+  PHARMA_INNOVATION = '创新药物（靶向/核素/合成）',
+  MEDICAL_DEVICES = '高端医疗器械（机器人/影像）',
+  TCM_MODERNIZATION = '中医药现代化（数字化转换）',
+  REGEN_MEDICINE = '再生医学（组织工程/生物材料）',
+  DIGITAL_HEALTH = '智慧医疗（AI辅助诊断/大模型）',
+  // 2025 其他热门
+  LOW_ALTITUDE_ECONOMY = '低空经济/无人驾驶系统',
+  AI_AGENT_BRAIN = '类脑智能/AI智能体',
+  SYNTHETIC_BIOLOGY = '合成生物/绿色化工',
+  ADVANCED_SEMICONDUCTOR = '半导体/EDA工具/光子芯片',
+  NEW_ENERGY_STORAGE = '固态电池/新型储能',
+  DATA_ELEMENTS = '数据要素/数字资产加工'
 }

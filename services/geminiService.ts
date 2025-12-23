@@ -5,23 +5,43 @@ import { Idea, EvaluationResult } from "../types";
 const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
 
 export async function evaluateIdea(idea: Idea): Promise<EvaluationResult> {
+  const dimensionSchema = {
+    type: Type.OBJECT,
+    properties: {
+      score: { type: Type.NUMBER, description: "维度得分" },
+      maxScore: { type: Type.NUMBER, description: "该维度满分" },
+      scoringPoints: { type: Type.ARRAY, items: { type: Type.STRING }, description: "命中的具体得分点" },
+      weakness: { type: Type.STRING, description: "该维度存在的问题" },
+      improvement: { type: Type.STRING, description: "改进方向" },
+      bridgeStrategy: { type: Type.STRING, description: "维度关联建议" }
+    },
+    required: ["score", "maxScore", "scoringPoints", "weakness", "improvement", "bridgeStrategy"]
+  };
+
   const prompt = `
-    你现在是中国国际大学生创新大赛（2026）的国家级评审组长。
-    请结合 2023-2025 三年间的大赛演变逻辑，对以下选题进行【深度可行性评估与战略调整报告】。
+    你现在是中国国际大学生创新大赛（2026）的国家级评审专家组组长。
+    我已经通过 2025 年金奖获奖名单（如：血管化心脏类器官、SpermSeek AI、LipiRelief 靶向药等）深度掌握了医药赛道的评审逻辑。
 
-    ### 专家评估原则：
-    1. **维度深挖**：每个维度不仅要打分，还要点名符合2026评审规则的哪些具体“得分点”。对于早期构思中缺失的【教育】和【社会价值】维度，**禁止批评缺失**，必须给出如何将该项目与这两个维度产生强关联的“方向参考”。
-    2. **选题进化**：若当前选题平庸，请基于原思路提供2个具有“金奖潜力”的【新选题参考】。
-    3. **落地穿透**：提供具体的盈利模式框架，对标行业领先企业（如华为、大疆、宁德时代等对应领域的头部），说明本项目优势。
-    4. **技术预警**：诚实点名目前技术路线的问题，并提供深入研究的科研方向。
+    ### 医药/生物类金奖评估准则：
+    1. **临床价值穿透**：必须点名解决了哪种“临床未被满足的需求”（Unmet Clinical Need）。
+    2. **技术护城河**：是否具备专利壁垒或复杂的生物工艺（如磁控溅射、微流控、蛋白质计算）。
+    3. **药政前瞻性**：如果是药/械，必须对“型检”、“临床申报”或“伦理”有明确的路径设想。
+    4. **国产替代/首创**：强调针对外资垄断（如高端医用缝合线、手术导航系统）的突破。
 
-    ### 项目信息：
+    ### 评审任务：
+    请对以下选题构思进行【深度诊断报告】。
+
     - 赛道：${idea.track}
+    - 领域：${idea.category}
     - 标题：${idea.title}
     - 描述：${idea.description}
-    - 领域：${idea.category}
 
-    请输出详细的 JSON 结果。
+    ### 输出要求：
+    - **选题进化 (Pivot)**：医药类题目必须更具科学性（例如：从“智能拐杖”魔改为“基于多模态传感的共融型下肢外骨骼机器人”）。
+    - **技术预警**：点名目前实验进度、一致性或安全性上的潜在缺陷。
+    - **商业闭环**：对标美敦力、强生、恒瑞、大疆医疗等头部。
+
+    请以 JSON 格式输出。
   `;
 
   const response = await ai.models.generateContent({
@@ -36,12 +56,13 @@ export async function evaluateIdea(idea: Idea): Promise<EvaluationResult> {
           dimensions: {
             type: Type.OBJECT,
             properties: {
-              education: { $ref: "#/definitions/dimension" },
-              innovation: { $ref: "#/definitions/dimension" },
-              team: { $ref: "#/definitions/dimension" },
-              business: { $ref: "#/definitions/dimension" },
-              social: { $ref: "#/definitions/dimension" }
-            }
+              education: dimensionSchema,
+              innovation: dimensionSchema,
+              team: dimensionSchema,
+              business: dimensionSchema,
+              social: dimensionSchema
+            },
+            required: ["education", "innovation", "team", "business", "social"]
           },
           topicPivots: {
             type: Type.ARRAY,
@@ -51,7 +72,8 @@ export async function evaluateIdea(idea: Idea): Promise<EvaluationResult> {
                 newTitle: { type: Type.STRING },
                 logic: { type: Type.STRING },
                 potential: { type: Type.STRING }
-              }
+              },
+              required: ["newTitle", "logic", "potential"]
             }
           },
           implementation: {
@@ -61,7 +83,8 @@ export async function evaluateIdea(idea: Idea): Promise<EvaluationResult> {
               painPointSolving: { type: Type.STRING },
               technicalShortcomings: { type: Type.ARRAY, items: { type: Type.STRING } },
               researchRoadmap: { type: Type.STRING }
-            }
+            },
+            required: ["preciseScenarios", "painPointSolving", "technicalShortcomings", "researchRoadmap"]
           },
           businessFramework: {
             type: Type.OBJECT,
@@ -70,24 +93,12 @@ export async function evaluateIdea(idea: Idea): Promise<EvaluationResult> {
               businessFramework: { type: Type.STRING },
               benchmarks: { type: Type.ARRAY, items: { type: Type.STRING } },
               competitiveAdvantages: { type: Type.STRING }
-            }
+            },
+            required: ["revenueModel", "businessFramework", "benchmarks", "competitiveAdvantages"]
           },
           expertComment: { type: Type.STRING }
         },
-        required: ["overallScore", "dimensions", "topicPivots", "implementation", "businessFramework", "expertComment"],
-        definitions: {
-          dimension: {
-            type: Type.OBJECT,
-            properties: {
-              score: { type: Type.NUMBER },
-              maxScore: { type: Type.NUMBER },
-              scoringPoints: { type: Type.ARRAY, items: { type: Type.STRING } },
-              weakness: { type: Type.STRING },
-              improvement: { type: Type.STRING },
-              bridgeStrategy: { type: Type.STRING }
-            }
-          }
-        }
+        required: ["overallScore", "dimensions", "topicPivots", "implementation", "businessFramework", "expertComment"]
       }
     }
   });
